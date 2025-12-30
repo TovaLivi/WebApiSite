@@ -1,0 +1,18 @@
+# קבצי פלט של הקומפילציה (לא מעלים אותם!)
+[Bb]in/
+[Oo]bj/
+
+# קבצי הגדרות של Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# קבצי הגדרות של השרת והדפדפן
+.vscode/
+dist/
+node_modules/
+
+# קבצי לוג
+*.log

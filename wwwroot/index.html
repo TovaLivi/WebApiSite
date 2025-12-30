@@ -1,0 +1,162 @@
+﻿<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>הפורטפוליו שלי וחיפוש GitHub</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: auto;
+        }
+
+        .search-section {
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        input {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            width: 200px;
+            margin: 5px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+            button:hover {
+                background: #0056b3;
+            }
+
+        #portfolio-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            width: 280px;
+            padding: 20px;
+            text-align: right;
+            border-top: 5px solid #007bff;
+        }
+
+        .lang {
+            background: #e1ecf4;
+            color: #39739d;
+            padding: 2px 8px;
+            border-radius: 5px;
+            font-size: 0.8em;
+        }
+
+        .btn {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 8px 12px;
+            background: #28a745;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>חיפוש פרויקטים ב-GitHub</h1>
+
+        <div class="search-section">
+            <input type="text" id="repoName" placeholder="שם פרויקט...">
+            <input type="text" id="langInput" placeholder="שפת פיתוח (למשל csharp)...">
+            <button onclick="searchRepos()">חפש ב-GitHub</button>
+            <button onclick="loadPortfolio()" style="background:#6c757d">חזור לפורטפוליו שלי</button>
+        </div>
+
+        <h2 id="title">הפרויקטים שלי</h2>
+        <div id="loading" style="display:none;">טוען...</div>
+        <div id="portfolio-container"></div>
+    </div>
+
+    <script>
+        const container = document.getElementById('portfolio-container');
+        const loading = document.getElementById('loading');
+
+        // פונקציה גנרית להצגת כרטיסיות
+        function displayRepos(data) {
+            container.innerHTML = '';
+            data.forEach(repo => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `
+                        <h3>${repo.name}</h3>
+                        <p>${repo.description || 'אין תיאור'}</p>
+                        <span class="lang">${repo.language || 'General'}</span>
+                        <div style="margin-top:10px; font-size:0.8em;">⭐ ${repo.stars}</div>
+                        <a href="${repo.htmlUrl}" target="_blank" class="btn">צפייה בקוד</a>
+                    `;
+                container.appendChild(card);
+            });
+        }
+
+        // טעינת הפורטפוליו האישי
+        async function loadPortfolio() {
+            document.getElementById('title').innerText = "הפרויקטים שלי";
+            loading.style.display = 'block';
+            try {
+                const response = await fetch('/api/Portfolio');
+                const data = await response.json();
+                displayRepos(data);
+            } finally {
+                loading.style.display = 'none';
+            }
+        }
+
+        // חיפוש גלובלי
+        async function searchRepos() {
+            const name = document.getElementById('repoName').value;
+            const lang = document.getElementById('langInput').value;
+
+            document.getElementById('title').innerText = "תוצאות חיפוש";
+            loading.style.display = 'block';
+            container.innerHTML = '';
+
+            try {
+                // קריאה ל-Endpoint של החיפוש עם פרמטרים
+                const response = await fetch(`/api/Portfolio/search?name=${name}&language=${lang}`);
+                const data = await response.json();
+                displayRepos(data);
+            } catch (e) {
+                alert("שגיאה בחיפוש. ודא ששפת הפיתוח כתובה נכון (למשל csharp)");
+            } finally {
+                loading.style.display = 'none';
+            }
+        }
+
+        // טעינה ראשונית
+        loadPortfolio();
+    </script>
+</body>
+</html>
